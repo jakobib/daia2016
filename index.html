@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="dcterms.date" content="2016-01-01">
+  <title>Finding availability</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link rel="stylesheet" href="code4lib.css">
+</head>
+<body>
+<header>
+
+<p id="issueDesignation">2016</p>
+<h1 class="title">Finding availability</h1>
+
+<div class="abstract">
+    <p><p>This article describes purpose, history, and application of Document Availability Information (DAIA).</p></p>
+</div>
+
+<div class="author">
+by
+Jakob Voß
+</div>
+</header>
+
+<p>
+  THIS IS AN UNPUBLISHED DRAFT!
+</p>
+
+<h1 id="introduction">Introduction</h1>
+<p><em>…what, who, when, where…</em></p>
+<p>When I started to work with actual library systems I was suprised by the lack of documented APIs…</p>
+<p>The article first provides an overview of the current DAIA specification to show purpose and properties of the API. The history of DAIA is then told to show why it was created in the first place and which roads were traveled to finally reach at DAIA 1.0. Current applications are listed afterwards before a a concluding summary and outlook.</p>
+<h1 id="daia-in-a-nutshell">DAIA in a nutshell</h1>
+<p><em>…overview of purpose and specification…</em></p>
+<p>real-time availability information</p>
+<p><span class="citation" data-cites="DAIA">(Voß 2016–2016-??-??)</span></p>
+<h1 id="a-brief-history-of-daia">A brief history of DAIA</h1>
+<h2 id="motivation-and-creation">Motivation and creation</h2>
+<p>The <strong>Document Availability Information API</strong> originates in the age of Library 2.0 that some readers may remember as a time of hope and struggle. Shortcomings of online public access catalogs (OPAC) and library services had become so obvious, compared to manifold possibilities of web techonologies, so there was momentum for change and experiments. This allowed the Hamburg State and University Library to get three years of funding for a project to create some kind of “Catalog 2.0”. The development of <strong>Project Beluga</strong> and the resulting discovery interface can be followed in its blog and presentations since 2007.<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> The VZG as service provider of Hamburg University libraries was asked to supply access to the integrated library system (ILS). I had just started to work at VZG with a degree in library science and computer science, motivated to replace the inaccessible library IT with service oriented architecture (SOA) and similar buzz.<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>.</p>
+<p>…</p>
+<p>DAIA web service was created in 2008 to provide clean access to real-time availability information for the “next generation catalog” developed in project Beluga. Based on use cases an API was discussed, implemented, and defined by Anne Christensen from Beluga, Uwe Reh from HeBis library union network<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a> and me.</p>
+<p><em>…Beluga: <span class="citation" data-cites="Christensen2010">(<span class="citeproc-not-found" data-reference-id="Christensen2010"><strong>???</strong></span>)</span> <a href="http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:0290-opus-8394">http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:0290-opus-8394</a>, DAIA 0.5: <span class="citation" data-cites="DAIA_0.5">(Voß and Reh 20??)</span>…</em></p>
+<h2 id="evangelism-and-adoption">Evangelism and Adoption</h2>
+<p>To promote the newly defined API, a lightning talk was given at the European Library Automation Group (ELAG) conference 2009 <span class="citation" data-cites="elag2009">(Voß 2009a)</span>. At the annual German library conference DAIA was presented <span class="citation" data-cites="bibtag2009">(Voß and Reh 2009–05AD)</span> and recommended to some ILS vendors at the conference fair. Despite further efforts in documentation and publication of an open source reference implementation <span class="citation" data-cites="DAIApm">(Voß 2013)</span> the outcome was limited.<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a> The only independent implementation came from Markus Fischer from the libraries of Swiss Solothurn hospitals AG: he implemented a DAIA service for <strong><a href="http://www.doctor-doc.com">Doctor Doc</a></strong>, a link resolver and management tool for interlibrary loan. The implementation does not strictly follow the specification as it uses OpenURL fields (<code>issn</code>, <code>volume</code>, <code>date</code>…) instead of unique request identifiers to easier meet its use case of looking up journal articles. Availability information from Doctor-Doc is included in the VuFind-based article reference database <a href="http://bibnet.org">bibnet.org</a> as described by <span class="citation" data-cites="Fischer2010">Fischer and Kandera (2010)</span>.</p>
+<p><em>…2010-2012: VuFind, BibApp, libsites (side-project)…</em></p>
+<p>Over the years the central DAIA server of VZG was used more and more, but signs of code smelll and software rot became undeniable.</p>
+<ul>
+<li><p>Prolem: code base directly origined from first prototype, implementation and specification being maintained by the same person (me)</p></li>
+<li><p>Both server and specification had became too complex to quickly rewrite them from scratch. it was difficult the change the implementation without touching the main implementation and vice versa.</p></li>
+<li><p>Running system: no motivation to revise specification and/or implementation</p></li>
+<li><p>multiple output formats: complex without benefit.</p></li>
+<li><p>retrospectively: DAIA tried to put two much data modeling into the specification (lesson learned: data modeling is important but should be invisible in the final product)</p></li>
+<li><p>…</p></li>
+</ul>
+<h2 id="with-paia-to-daia-1.0">With PAIA to DAIA 1.0</h2>
+<p>The final motivation to eventually finish DAIA 1.0 specification came with implementation of another API for access to patron accounts: the <strong>Patrons Account Information API (PAIA)</strong> was specified as complement to DAIA during development of the mobile library application “BibApp” in 2012.<a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a> Although PAIA is more complex than DAIA, as it also includes authentification and write access, the specification turned out to be but easier and cleaner than DAIA 0.5.</p>
+<p>Based on the specification of PAIA <span class="citation" data-cites="PAIA">(Voß 2015–06AD)</span>, a first PAIA server was implemented by a contractor<a href="#fn6" class="footnoteRef" id="fnref6"><sup>6</sup></a> as simple wrapper to the library loan system and later replaced by a second implementation with internal access to the ILS in 2013/2014. Having a module to directly access ILS functionality allowed us to think about replacing the old DAIA server with a more robust implementation. This new implementation of a DAIA server motivated a major revision of DAIA specification.</p>
+<h2 id="whats-new-in-daia-1.0">What’s new in DAIA 1.0</h2>
+<p><em>…comparision of DAIA 0.5 with DAIA 1.0…</em></p>
+<ul>
+<li><p>Removal of options that had showed to be unnecessary over the years and addition of missing features.</p></li>
+<li><p>Maintaining backwards-compatibility as best as possible.</p></li>
+</ul>
+<p>Main decicision: get rid of XML and RDF</p>
+<h1 id="applications">Applications</h1>
+<p><em>…servers, clients, usage…</em></p>
+<h2 id="daia-clients">DAIA clients</h2>
+<p>The first use case and application of DAIA was Beluga…</p>
+<p>Unfortunately Beluga was created when VuFind was not available yet, so the project had to support its own code base. …</p>
+<p>The DAIA driver in VuFind has been created and improved collaboratively by several VuFind users.</p>
+<p>BibApp…</p>
+<p>The JavaScript module ng-daia <span class="citation" data-cites="ngdaia">(Voß and Horn 2014a)</span> for use with the AngularJS framework has already been presented in code4lib journal <span class="citation" data-cites="AngularJS2014">(Voß and Horn 2014b)</span>.</p>
+<p>Within VZG DAIA is also used for interlibrary-loan checking for selected libraries.</p>
+<p>KOBV…</p>
+<p>…</p>
+<p>No public use known so far (e.g. display in learning management systems or reference managers) - one reason might be a lacking proactive publication of the API by libraries</p>
+<h2 id="daia-servers">DAIA servers</h2>
+<p>DAIA services have been implemented for several ILS so far. The supported ILS are mainly used in Germany. All implementations have been created by ILS users instead of being provided as official APIs by the ISL vendors.</p>
+<p>The first DAIA server at VZG, wrapping the <strong>LBS</strong> ILS from OCLC (formerly from PICA),<a href="#fn7" class="footnoteRef" id="fnref7"><sup>7</sup></a> is being replaced by a new implementation with direct access to the LBS database. Parts of the first server have been released as Perl modules at CPAN to facilitate the creation of DAIA 0.5 wrappers <span class="citation" data-cites="DAIApm">(Voß 2013,<span class="citation" data-cites="PlackDAIA">Voß (2014)</span>)</span>. DAIA servers for ILS <strong>Bibliotheca</strong> (originally from BOND, now also OCLC)<a href="#fn8" class="footnoteRef" id="fnref8"><sup>8</sup></a> and <strong>Libero</strong> from LIB-IT<a href="#fn9" class="footnoteRef" id="fnref9"><sup>9</sup></a> have been created independently as part of the Saxonian project finc.<a href="#fn10" class="footnoteRef" id="fnref10"><sup>10</sup></a> The Bibliotheksservice-Zentrum Baden-Württemberg (BSZ) provides DAIA servers for their customers with ILS <strong>aDIS/BMS</strong> from a|S|te|c<a href="#fn11" class="footnoteRef" id="fnref11"><sup>11</sup></a> and for <strong>Koha</strong>.<a href="#fn12" class="footnoteRef" id="fnref12"><sup>12</sup></a> Both are implemented as closed wrappers not integrated in the ILS, so neither Koha provides a native DAIA service so far. The lack of interest within the Koha community suprised me, given that the ILS is both Open Source and written in Perl just like the public reference implementation of DAIA 0.5. The DAIA server of <strong>Doctor-Doc</strong> is available as open source.<a href="#fn13" class="footnoteRef" id="fnref13"><sup>13</sup></a></p>
+<h1 id="summary-and-outlook">Summary and outlook</h1>
+<p>…</p>
+<ul>
+<li><p>International adoption and independent implementations in other ILS? (VZG will probably implement DAIA at Kuali OLE but what about other sofware). More clients?</p></li>
+<li><p>Make DAIA endpoints more popular also to third parties</p></li>
+<li><p>Rule learned: no API implementation without specification, no specification without implementation (at least of a client). Sure throw-away prototypes are still important but a fresh implementation from scratch is needed once the specification has been finished.</p></li>
+<li><p>difficulty of digital publications and licenses but if we cannot cleanly encode availability information for traditional, physical documents, how can be expect to do better with digital documents?</p></li>
+<li><p>…</p></li>
+</ul>
+<div class="references">
+<h1>References</h1>
+<p>Fischer, Markus, and Stefan Kandera. 2010. “Building up a Collaborative Article Database Out of Open Source Components.” Article. <em>The Code4Lib Journal</em>, no. 12 (December). <a href="http://journal.code4lib.org/articles/4438">http://journal.code4lib.org/articles/4438</a>.</p>
+<p>Voß, Jakob. 2009a. “Defining Availability with the Document Availability Information API (DAIA).” Misc. <a href="http://de.slideshare.net/nichtich/defining-availability-with-the-document-availability-information-api-daia">http://de.slideshare.net/nichtich/defining-availability-with-the-document-availability-information-api-daia</a>.</p>
+<p>———. 2009b. “Get Tooled Up: SeeAlso: A Simple Linkserver Protocol.” Article. <em>Ariadne</em>, no. 57 (October). <a href="http://www.ariadne.ac.uk/issue57/voss">http://www.ariadne.ac.uk/issue57/voss</a>.</p>
+<p>———. 2013. “DAIA.pm.” Misc. <a href="https://metacpan.org/pod/DAIA">https://metacpan.org/pod/DAIA</a>.</p>
+<p>———. 2014. “DAIA.pm.” Misc. <a href="https://metacpan.org/pod/Plack::App::DAIA">https://metacpan.org/pod/Plack::App::DAIA</a>.</p>
+<p>———. 2015–06AD. <em>Patrons Account Information API (PAIA)</em>. Technical report. <a href="https://gbv.github.com/paia/">https://gbv.github.com/paia/</a>.</p>
+<p>———. 2016–2016-??-?? <em>Document Availability Information API (DAIA) 1.0.0</em>. Technical report. <a href="https://gbv.github.io/daia/">https://gbv.github.io/daia/</a>.</p>
+<p>Voß, Jakob, and Moritz Horn. 2014a. “Ng-Daia.” Misc. <a href="https://gbv.github.io/ng-daia/">https://gbv.github.io/ng-daia/</a>.</p>
+<p>———. 2014b. “Exposing Library Services with AngularJS.” Article. <em>The Code4Lib Journal</em>, no. 26 (October). <a href="http://journal.code4lib.org/articles/10023">http://journal.code4lib.org/articles/10023</a>.</p>
+<p>Voß, Jakob, and Uwe Reh. 20?? <em>Document Availability Information API (DAIA) 0.5</em>. Technical report. <a href="http://example.org/">http://example.org/</a>.</p>
+<p>———. 2009–05AD. “Verfügbarkeitsrecherche Mit DAIA.” Misc. <a href="http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:0290-opus-6824">http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:0290-opus-6824</a>.</p>
+</div>
+<section class="footnotes">
+<h1>Endnotes</h1>
+<ol>
+<li id="fn1"><p>See <a href="http://beluga-blog.sub.uni-hamburg.de/">http://beluga-blog.sub.uni-hamburg.de/</a> (in German).<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>See <span class="citation" data-cites="Voss2008">(Voß 2009b)</span> for another API developed during this time.<a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>HeBis uses the same ILS as GBV/VZG so he provided valuable information about its data format and access. Ironically, the DAIA server for Hamburg library was implemented and hosted by HeBis and although the library is a customer of VZG. I take this cooperation as early lesson that library IT developers can best work together if they are free to ignore politics.<a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p>only later I realized that technical arguments are mostly fruitless because of an ill-fated relationship between libraries and library IT vendors.<a href="#fnref4">↩</a></p></li>
+<li id="fn5"><p>See <a href="https://www.gbv.de/wikis/cls/BibApp">https://www.gbv.de/wikis/cls/BibApp</a> for a German overview of BibApp. The application is available as Open Source at <a href="https://github.com/gbv/bibapp-ios">https://github.com/gbv/bibapp-ios</a> and <a href="https://github.com/gbv/bibapp-android">https://github.com/gbv/bibapp-android</a>.<a href="#fnref5">↩</a></p></li>
+<li id="fn6"><p>Creation and maintanance of BibApp is done by the software company <a href="http://www.effective-webwork.de/">effective WEBWORK</a> and paid by all libraries that use BibApp while VZG provides APIs to their library systems.<a href="#fnref6">↩</a></p></li>
+<li id="fn7"><p><a href="http://www.oclc.org/en-europe/lbs.html">http://www.oclc.org/en-europe/lbs.html</a><a href="#fnref7">↩</a></p></li>
+<li id="fn8"><p><a href="https://www.oclc.org/de-DE/bibliotheca.html">https://www.oclc.org/de-DE/bibliotheca.html</a><a href="#fnref8">↩</a></p></li>
+<li id="fn9"><p><a href="http://www.lib-it.de/produkte/libero.html">http://www.lib-it.de/produkte/libero.html</a><a href="#fnref9">↩</a></p></li>
+<li id="fn10"><p>See <a href="https://finc.info">https://finc.info</a> for project information, <a href="https://github.com/finc/DaiaTheca">https://github.com/finc/DaiaTheca</a> and <a href="https://github.com/finc/DaiaLibero">https://github.com/finc/DaiaLibero</a> for DAIA servers implemented in Java.<a href="#fnref10">↩</a></p></li>
+<li id="fn11"><p><a href="https://www.astec.de/">https://www.astec.de/</a><a href="#fnref11">↩</a></p></li>
+<li id="fn12"><p>See <a href="https://wiki.bsz-bw.de/doku.php?id=l-team:daia:start">https://wiki.bsz-bw.de/doku.php?id=l-team:daia:start</a><a href="#fnref12">↩</a></p></li>
+<li id="fn13"><p>The Java source code is available at <a href="https://sourceforge.net/projects/doctor-doc">https://sourceforge.net/projects/doctor-doc</a>.<a href="#fnref13">↩</a></p></li>
+</ol>
+</section>
+
+<h1>About the Authors</h1>
+<p><em>Jakob Voß</em> works in research and development at VZG, the head office of Common Library Network (Gemeinsamer Bibliotheksverbund, GBV) in Göttingen.</p>
+
+</body>
+</html>
