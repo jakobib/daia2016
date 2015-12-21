@@ -1,5 +1,5 @@
 ---
-title: Finding availability
+title: Finding availability with the Document Availability Information API
 author:
 - name:  Jakob Voß      
   about: works in research and development at VZG, the head office of Common 
@@ -7,5 +7,13 @@ author:
 date: 2016
 abstract: >
     This article describes purpose, history, and application of 
-    Document Availability Information (DAIA).
+    Document Availability Information API (DAIA). DAIA was first specified
+    and implemented in 2008 to allow requesting real-time availability 
+    information from closed library systems with an open REST style API.
+
+    The article first explains properties of the API and provides an overview
+    of the current major revision DAIA 1.0.  The history of DAIA is then told
+    to show why it was created in the first place, which roads were traveled,
+    and what lessons have been learned. Current applications are listed
+    afterwards before a concluding summary and outlook.
 ...

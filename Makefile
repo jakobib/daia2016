@@ -9,9 +9,9 @@ endif
 # FIXME: https://github.com/jgm/pandoc-citeproc/issues/81
 #	   --csl council-of-science-editors-author-date.csl \
 
-REFERENCES=$(NAME).bib
+REFERENCES=references.bib
 
-$(NAME).html: $(ABOUT) $(NAME).md $(NAME).bib
+$(NAME).html: $(ABOUT) $(NAME).md $(REFERENCES)
 	@$(PANDOC) -s -S -t html5 $(ABOUT) $(NAME).md \
 	   --template code4lib.html \
 	   --bibliography $(REFERENCES) \
