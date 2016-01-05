@@ -23,54 +23,132 @@ as NCIP...*
 
 # DAIA in a nutshell
 
-*...overview of purpose and specification...*
+In a nutshell the Document Availability Information API (DAIA) defines a method
+to query the current availability of documents via HTTP. A **document** must be
+identified by an URI but DAIA services may map other forms of request
+identifiers to normalized URIs. A DAIA response contains information about
+particular **items** which are copies or holdings of documents, so the first
+application of DAIA is getting a list of copies held by a library or library
+network. This use case can best be illustrated with an example:
 
-*what: real-time availability information*
+Given the Western Michigan University Libraries had a DAIA service at
+<https://wmich.edu/library/daia>, a request with ISBN-10 via request URL
+<https://wmich.edu/library/daia?id=1490931864> could result in the following
+JSON object:^[Example based on actual library data from their public catalog.]
 
-- based on a conceptual data model:
-- does avoid the bad habit to put semantics into free-text fields
+~~~json
+{
+  "institution": {
+    "id": "http://id.loc.gov/vocabulary/organizations/mikw",
+    "href": "https://wmich.edu/library",
+    "content": "Western Michigan University Libraries"
+  },
+  "document": [
+    {
+      "id": "urn:isbn:9781490931869",
+      "requested": "1490931864",
+      "item": [ 
+        {
+          "id": "http://wmich.edu/library/barcode/31141023353605",
+          "label": "Z666.7 .V6 2013",
+          "department": {
+            "content": "Dwight B. Waldo Library"
+          }
+        }
+      ]
+    }
+  ]
+}
+~~~
 
-Main DAIA concepts: documents, items and services
+The request identifier `1490931864` (field `requested`) is mapped to the URI
+`urn:isbn:9781490931869` and found with one item (array `item`). The item is
+returned with its shelf mark (field `label`).  As included in this example, a
+DAIA response can also contain information about the holding library
+(`institution`) and a particular branch (`department`) which an item is located
+at.  Use of URIs to identify entities (field `id`) is encouraged instead of
+additional fields. For instance [`http://id.loc.gov/vocabulary/organizations/mikw`](http://id.loc.gov/vocabulary/organizations/mikw) can be used to retrieve more
+information about the library such as its address.
 
-Additional concepts: entities such as holding institutions and storage locations
+To ensure automatic processing of DAIA responses, the DAIA specification
+[@DAIA_1.0] prevents free-text fields other than literal names and labels.
+This also applies to the encoding of actual availability, which is not
+expressed by textual descriptions such as "currently available" or "on hold".
+Availability instead is based on **services**, being the third important
+concept next to documents and items.  Following the DAIA data model an item is
+never available or unavailable by itself but only for a specific service
+provided by a specific organization.  It is crucial to note that an item can be
+available for mutliple services under multiple conditions. The same item can
+also be available for one service and unavailable for another service.  DAIA
+specification defines five service types:
 
++------------------+-----------------------------------------------------------+
+| **presentation** | making an item accessible within the helding organization |
+|                  | (e.g. non-lending reference holdings)                     |
++------------------+-----------------------------------------------------------+
+| **loan**         | proving an item for lending                               |
+|                  | (after picking it up at the library)                      |
++------------------+-----------------------------------------------------------+
+| **remote**       | delivery of an item to the patron (e.g. remote access     |
+|                  | of digital documents or home delivery of books)           |
++------------------+-----------------------------------------------------------+
+| **openaccess**   | providing an URL for unlimited online access              |
++------------------+-----------------------------------------------------------+
+| **interloan**    | giving an item to interlibrary loan                       |
++------------------+-----------------------------------------------------------+
 
+The main question to be answered with these service types is what an average
+patron can do with a particular item. Developed from a users' perspective DAIA
+does not distinguish document types or similar properties of library holdings
+that only affect document usage indirectly. A DAIA response rather lists which
+types of usages can currently be provided (available) or not provided
+(unavailable) with a document instance. The information is encoded in JSON
+fields `available` and `unavaibale` of an `item` as following:
 
-In contrast to existing library IT APIs DAIA was developed from a a users'
-perspective: the basic question which DAIA helps to answer is about document
-usage provided by library. Therefore DAIA does not include document types
-but service types.
+~~~json
+{
+  "available": [ 
+    { "service": "presentation" }, 
+    { "service": "interloan" } 
+  ],
+  "unavailable": [ 
+    { "service": "loan" }, 
+    { "service": "remote" } 
+  ]
+}
+~~~
 
-*...[@DAIA]...*
+The item in this example can be used within the library and ordered to another
+library via interlibrary loan but it is not lend or remotely given to the
+patron. As explained in the DAIA specification, each service can be further be
+described with additional fields, covering virtually all use cases we could
+find:
 
-The most important design decision in DAIA: The idea of a "general
-availability" status, as shown in some OPACs, was suggested several times but
-it was rejected. In DAIA an item is never available or unavailable by itself
-but only for a specific service and provided by a specific organization. The
-same item can be available for one service and unavailable for another service
-at the same time.
+* a service can require ... (field `href`)
+* a service can be limited ... (`limitation`)
+* an available service can come with some delay (`delay`) for
+  instance ...
+* an unavailable service can ... (`expected`), ... (`queue`)
 
-question to be answered with DAIA result: what can be done with a document?
-
-...
+*...mention mapping of DAIA response (data model) to user interface...*
 
 # A brief history of DAIA
 
 ## Motivation and creation
 
-The **Document Availability Information API** originates in the age of Library
-2.0 that some readers may remember as a time of hope and struggle.
-Shortcomings of online public access catalogs (OPAC) and library services had
-become obvious enough, especially compared to manifold possibilities of web
-techonologies, to generate a momentum for change and experiments.  This allowed
-the Hamburg State and University Library to get three years of funding for a
-project to create a "Catalog 2.0". The development of **Project Beluga** and
-the resulting discovery interface can be followed in its blog and presentations
-since 2007.^[See <http://beluga-blog.sub.uni-hamburg.de/> (in German).] The VZG
-as service provider of Hamburg University libraries was asked to supply access
-to the integrated library system (ILS).  
+DAIA originates in the age of Library 2.0 that some readers may remember as a
+time of hope and struggle.  Shortcomings of online public access catalogs
+(OPAC) and library services had become obvious enough, especially compared to
+manifold possibilities of web techonologies, to generate a momentum for change
+and experiments.  This allowed the Hamburg State and University Library to get
+three years of funding for a project to create a "Catalog 2.0". The development
+of **Project Beluga** and the resulting discovery interface can be followed in
+its blog and presentations since 2007.^[See
+<http://beluga-blog.sub.uni-hamburg.de/> (in German).] The VZG as service
+provider of Hamburg University libraries was asked to supply access to the
+integrated library system (ILS).  
 
-**...TODO: screenshot of Beluga from @elag2009**
+*...TODO: screenshot of Beluga from @elag2009*
 
 DAIA web service was created in 2008 to provide clean access to real-time
 availability information for the "next generation catalog" developed in
@@ -175,6 +253,10 @@ DAIA 0.5 was firmly grounded in conceptual modeling, XML, and RDF etc.
   The Approach to use RDF as basic data format turned out to be impractical but
   it helped conceptual modeling 
 
+  See also mistakes of OpenURL 1.0 vs 0.1 (new formats, more complexity for
+  no actual more outcome) and SRU 2.0 vs 1.0 (dito).
+
+
 - recommended encoding of common limitations of interlibrary loan (e.g. no
   loan to foreign countries): Digital Documents and Interloan is difficult
   because libraries often don’t know what they have licensed under what conditions. 
@@ -221,9 +303,9 @@ the API by libraries
 
 ## DAIA servers
 
-DAIA services have been implemented for several ILS so far. The supported ILS
-are mainly used in Germany. All implementations have been created by ILS users
-instead of being provided as official APIs by the ISL vendors.
+DAIA services have been implemented for several ILS, mainly used in Germany, so
+far.  All implementations but one have been created by ILS users instead of
+being provided as official APIs by the ISL vendors.
 
 The first DAIA server at VZG, wrapping the **LBS** ILS from OCLC (formerly from
 PICA),^[<http://www.oclc.org/en-europe/lbs.html>] is being replaced by a new
@@ -245,13 +327,19 @@ Koha community suprised me, given that the ILS is both Open Source and written
 in Perl just like the public reference implementation of DAIA 0.5.]
 **Doctor-Doc** including its DAIA server is available as open source.^[The Java
 source code is located at <https://sourceforge.net/projects/doctor-doc>.] The
-final DAIA implementation was created for the **BIBDIA** ILS from BibBer
-GmbH^[<http://www.bibdia.de/bibdia>] to be included in the KOBV portal of
-libraries in Berlin and Brandenburg.
+only implementation coming from an ILS vendor is the DAIA module of
+**BIBDIA** ILS from BibBer GmbH^[<http://www.bibdia.de/bibdia>]. The module was
+created for the City and State Library of Potsdam to be integrated into the
+KOBV portal of libraries in Berlin and Brandenburg.
 
 # Summary and outlook
 
 ...
+
+1. DAIA does not come from vendor or if so (BIBDIA) vendor does not advertise 
+   DAIA
+
+2. Libraries do not advertise DAIA as public service but only use it internally
 
 - International adoption and independent implementations in other
   ILS? (VZG will probably implement DAIA at Kuali OLE but what about
@@ -272,5 +360,20 @@ libraries in Berlin and Brandenburg.
   with digital documents?
 
 - ...
+
+Apart from "openaccess" the service types do not distinguish document types
+digital or physical material.
+
+*what: real-time availability information*
+
+- based on a conceptual data model:
+- does avoid the bad habit to put semantics into free-text fields
+
+Main DAIA concepts: documents, items and services
+
+The most important design decision in DAIA: The idea of a "general
+availability" status, as shown in some OPACs, was suggested several times but
+it was rejected. 
+
 
 # References
