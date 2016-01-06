@@ -5,21 +5,26 @@ finished my degree in library science and computer science, I was frankly
 surprised by the state of programming interfaces to library systems in general
 and web services in particular. The best one could find was SRU
 (Search/Retrieve via URL), a search API not known outside library IT.  Other
-services were hidden arcane access points with rarely specified interfaces.
+services were hidden, arcane access points with rarely specified
+interfaces.^[To be honest one should mention at least the existence of API
+specifications for some services, independently from their actual
+(non)implementation in library systems at that time: OAI-PMH, RSS, and AtomPub
+for syndication; SRU Update for update/edit, OpenID, and Shibboleth for
+Authentification; unAPI, COInS, and Microformats to provide data for copy and
+paste.]
 Still I was motivated to replace the inaccessible library IT with a service
 oriented architecture (SOA).^[See [@Voss2008] for another API developed by this
-motivation at that time.]
-
-...
-
-*...other services had appropriate APIs at least theoretically: 
-OAI-PMH, RSS, and AtomPub for Syndication, SRU Update for update/edit,
-OpenID, Shibboleth for Authentification, unAPI, COInS, and Microformats
-to provide data for copy and paste etc.*
-
-*...DLF ILS Discovery Interface Task Group’s recommendation, existing APIs such
-as NCIP...*
-
+motivation at that time.] One part of this strategy was the creation of a
+dedicated API to query real-time availability of documents, which is the topic
+of this article.^[By the way Wikidata contains an authority file record for
+DAIA: <http://www.wikidata.org/entity/Q17122861>.] The resulting *Document
+Availability Information API (DAIA)* is being used successfully within the
+*Common Library Network (GBV)* since 2009.
+This article first introduces its current specification 
+as recently revised to become DAIA 1.0 [@DAIA_1.0].
+Background of the development is then covered with the history of DAIA until now.
+The final sections summarize existing applications and implementations and 
+conclude with a biased summary.
 
 # DAIA in a nutshell
 
@@ -120,17 +125,87 @@ fields `available` and `unavaibale` of an `item` as following:
 
 The item in this example can be used within the library and ordered to another
 library via interlibrary loan but it is not lend or remotely given to the
-patron. As explained in the DAIA specification, each service can be further be
-described with additional fields, covering virtually all use cases we could
-find:
+patron. Each service can further be specified with additional fields, covering
+virtually all use cases we could find:
 
-* a service can require ... (field `href`)
-* a service can be limited ... (`limitation`)
-* an available service can come with some delay (`delay`) for
-  instance ...
-* an unavailable service can ... (`expected`), ... (`queue`)
+* A service can require some action to be performed, registered, or reserverd 
+  (field `href`). Examples include ordering a book from the stacks or reserving
+  a book which is currently not available.
+  reserving a book.
 
-*...mention mapping of DAIA response (data model) to user interface...*
+* An available service can come with some delay (field `delay`), for
+  instance if a book must be delivered to the reading room.
+
+* An unavailable service can expected to be available after
+  some estimated time  (field `expected`) and/or after a number of
+  reservations (field `queue`).
+
+* A service can be subject to additional limitations (field `limitation`). The
+  DAIA specification contains recommendations of common limitation types such
+  as required approval or no interlibrary loan to foreign contries.
+
+The full set of data fields described in the DAIA specification implies a data
+model to express common cases of document availability in libraries and related
+institutions. How to present this information in a user interface is not
+defined by DAIA but depends on the application. The specification suggests a
+reduced, flat format named "DAIA Simple" for simple use cases when there is a
+preferrence of service types (e.g. openaccess is always better than remote
+which is always better than loan which is always better than presentation).
+Some applications might further reduce the availability to simple boolean
+value. Then ng-daia client [@ngdaia, @AngularJS2014] contains some templates
+for display of availability information. Nevertheless any decision how to
+present availability information for best user experience requires
+understanding of both use cases and the DAIA data model.
+
+A full example of a DAIA response covering the information displayed in an
+actual discovery interface (Figure 1) is given below. The response contains a
+document with two items at the Hamburg State and University Library, one of
+available at the department of computer scienc and the other being on loan.
+
+~~~json
+{
+  "institution": {
+    "id": "http://uri.gbv.de/organization/isil/DE-18",
+    "href": "http://www.sub.uni-hamburg.de",
+    "content": "Staats- und Universitätsbibliothek Hamburg Carl von Ossietzky"
+  },
+  "document": [
+    {
+      "id": "http://uri.gbv.de/document/opac-de-18:ppn:496539388",
+      "href": "http://kataloge.uni-hamburg.de/DB=1/PPNSET?PPN=496539388",
+      "item": [
+        {
+          "id": "http://uri.gbv.de/document/opac-de-18:epn:723843554",
+          "department": {
+            "content": "Informatik-Bibliothek",
+            "href": "http://www.inf.uni-hamburg.de/de/inst/bib.html"
+          },
+          "label": "A LES 37311",
+          "available": [
+            { "service": "presentation" },
+            { "service": "loan" }
+          ]
+        },
+        {
+          "id": "http://uri.gbv.de/document/opac-de-18:epn:798020261",
+          "label": "A 2006/9564",
+          "unavailable": [
+            {
+              "service": "presentation", 
+              "expected": "2009-05-13",
+            },
+            {
+              "service": "loan",
+              "expected": "2009-05-13",
+              "href": "https://kataloge.uni-hamburg.de/loan/DB=1/RES?EPN=1581266766&LOGIN=ANONYMOUS"
+            }
+          ]
+        }
+      ]
+    } 
+  ]
+}
+~~~
 
 # A brief history of DAIA
 
@@ -141,29 +216,24 @@ time of hope and struggle.  Shortcomings of online public access catalogs
 (OPAC) and library services had become obvious enough, especially compared to
 manifold possibilities of web techonologies, to generate a momentum for change
 and experiments.  This allowed the Hamburg State and University Library to get
-three years of funding for a project to create a "Catalog 2.0". The development
-of **Project Beluga** and the resulting discovery interface can be followed in
-its blog and presentations since 2007.^[See
-<http://beluga-blog.sub.uni-hamburg.de/> (in German).] The VZG as service
-provider of Hamburg University libraries was asked to supply access to the
-integrated library system (ILS).  
+three years of funding for a project to create a "Catalog 2.0" aka "next
+generation catalog". The development of *Project Beluga* and the resulting
+discovery interface can be followed in its blog and presentations since
+2007.^[See <http://beluga-blog.sub.uni-hamburg.de/> (in German).] The VZG as
+service provider of Hamburg University libraries was asked to supply access to
+the integrated library system (ILS). Instead of creating a dirty hack we
+decided to provide a web service for clean access to real-time availability
+information.  Based on use cases an availability API was discussed,
+implemented, and defined by Anne Christensen from Beluga, Uwe Reh from HeBis
+library union network, and me.^[HeBis uses the same ILS as GBV/VZG so he
+provided valuable information about its data format and access. Ironically, the
+DAIA server for Hamburg library was implemented and hosted by HeBis and
+although the library is a customer of VZG. I take this cooperation as early
+lesson that library IT developers can best work together if they are free to
+ignore politics.] The resulting specification was named DAIA 0.5
+[@DAIA_0.5].
 
-*...TODO: screenshot of Beluga from @elag2009*
-
-DAIA web service was created in 2008 to provide clean access to real-time
-availability information for the "next generation catalog" developed in
-project Beluga. Based on use cases an API was discussed, implemented, and
-defined by Anne Christensen from Beluga, Uwe Reh from HeBis library union
-network^[HeBis uses the same ILS as GBV/VZG so he provided valuable
-information about its data format and access. Ironically, the DAIA server for
-Hamburg library was implemented and hosted by HeBis and although the library
-is a customer of VZG. I take this cooperation as early lesson that library IT
-developers can best work together if they are free to ignore politics.] and
-me.
-
-*...Beluga: [@Christensen2010]
-<http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:0290-opus-8394>,
-DAIA 0.5: [@DAIA_0.5]...*
+![Availability information as displayed in Beluga 2009](beluga-screenshot-2009.png)
 
 ## Evangelism and adoption
 
@@ -186,7 +256,7 @@ use case of looking up journal articles. Availability information from
 Doctor-Doc is included in the VuFind-based article reference database
 [bibnet.org](http://bibnet.org) as described by @Fischer2010.
 
-*...2010-2012: VuFind, BibApp, libsites (side-project)...*
+*TODO: 2010-2012: VuFind, BibApp, libsites/LOD ontologies (side-projects)...*
 
 Over the years the central DAIA server of VZG was used more and more, but
 signs of code smelll and software rot became undeniable.
@@ -333,6 +403,20 @@ created for the City and State Library of Potsdam to be integrated into the
 KOBV portal of libraries in Berlin and Brandenburg.
 
 # Summary and outlook
+
+*TODO: notes to text*
+
+...what does it means to be available
+
+Existing APIs and standards evaluated during specification of DAIA included:
+
+* *Z39.50 Holdings Attribute Set and Schema* (2002)
+* *Catalog Availability Web Service* of the NCSU Libraries catalog 
+  [@Sierra2007]
+* ... 
+* *...DLF ILS Discovery Interface Task Group’s recommendation, existing APIs such
+as NCIP. See <https://www.gbv.de/wikis/cls/index.php?title=Document_Availability_Information_API_%28DAIA%29&oldid=9091> for more*
+
 
 ...
 
