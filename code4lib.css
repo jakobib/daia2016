@@ -68,10 +68,31 @@ h1.title {
   margin-right: 3em;
 }
 
-figure { text-align: center; counter-increment: figures; }
+figure { 
+    text-align: center; counter-increment: figures; 
+}
 figcaption:before {
     content: 'Figure ' counter(figures) ': ';
     font-weight: bold;
+}
+caption {
+    text-align: center; counter-increment: table; 
+}
+caption:before {
+    content: 'Table ' counter(table) ': ';
+    font-weight: bold;
+}
+table {
+    border-collapse: collapse;
+}
+th {
+    padding: 0.25em;
+    border: 1px solid #000;
+    background-color: #D3D3D3;
+}
+td {
+    padding: 0.25em;
+    border: 1px solid #000;
 }
 
 pre {

@@ -102,6 +102,8 @@ specification defines five service types:
 | **interloan**    | giving an item to interlibrary loan                       |
 +------------------+-----------------------------------------------------------+
 
+  : DAIA service types
+
 The main question to be answered with these service types is what an average
 patron can do with a particular item. Developed from a users' perspective DAIA
 does not distinguish document types or similar properties of library holdings
@@ -222,68 +224,105 @@ discovery interface can be followed in its blog and presentations since
 2007.^[See <http://beluga-blog.sub.uni-hamburg.de/> (in German).] The VZG as
 service provider of Hamburg University libraries was asked to supply access to
 the integrated library system (ILS). Instead of creating a dirty hack we
-decided to provide a web service for clean access to real-time availability
-information.  Based on use cases an availability API was discussed,
-implemented, and defined by Anne Christensen from Beluga, Uwe Reh from HeBis
-library union network, and me.^[HeBis uses the same ILS as GBV/VZG so he
-provided valuable information about its data format and access. Ironically, the
-DAIA server for Hamburg library was implemented and hosted by HeBis and
+decided to provide a general web service for clean access to real-time
+availability information.  Based on use cases an availability API was
+discussed, implemented, and defined by Anne Christensen from Beluga, Uwe Reh
+from HeBIS library network, and me.^[HeBIS uses the same LBS ILS as GBV/VZG so
+he provided valuable information about its data format and access.  Ironically,
+the DAIA server for Hamburg library was implemented and hosted by HeBIS
 although the library is a customer of VZG. I take this cooperation as early
 lesson that library IT developers can best work together if they are free to
-ignore politics.] The resulting specification was named DAIA 0.5
-[@DAIA_0.5].
+ignore politics.] Existing APIs and standards evaluated during specification of
+DAIA included recommendations of the ILS Discovery Interface Task Force and
+schema drafts [@Ockerbloom2008], Z39.50 Holdings Attribute Set and Schema
+[@Z39_50_Holdings], ISO 20775 Holdings [@Gatenby2008] and the Catalog
+Availability Web Service of the NCSU Libraries catalog [@Sierra2007].  The
+resulting specification was named DAIA 0.5 [@DAIA_0.5].
 
 ![Availability information as displayed in Beluga 2009](beluga-screenshot-2009.png)
 
-## Evangelism and adoption
+
+## Evangelism and reception
 
 To promote the newly defined API, a lightning talk was given at the European
 Library Automation Group (ELAG) conference 2009 [@elag2009]. At the annual
-German library conference DAIA was presented [@bibtag2009] and recommended to
-some ILS vendors at the conference fair.  Despite further efforts in
-documentation and publication of an open source reference implementation
-[@DAIApm] the outcome was limited.^[only later I realized that technical
-arguments are mostly fruitless because of an ill-fated relationship between
-libraries and library IT vendors.] An early, experimental implementation for
-the *OpenBiblio* library system was provided by Ross Singer as part of the
-Jangle framework [@Singer2008].  Another independent implementation came from
-Markus Fischer from the libraries of Swiss Solothurn hospitals AG: he
-implemented a DAIA service for *[Doctor Doc](http://www.doctor-doc.com)*, a
-link resolver and management tool for interlibrary loan. The implementation
-does not strictly follow the specification as it uses OpenURL fields (`issn`,
-`volume`, `date`...) instead of unique request identifiers to easier meet its
-use case of looking up journal articles. Availability information from
-Doctor-Doc is included in the VuFind-based article reference database
+German library conference DAIA was presented [@bibtag2009; @Reh2009] and
+recommended to some ILS vendors at the conference fair.  Despite further
+efforts in documentation, and publication of an open source reference
+implementation [@DAIApm] the interest in DAIA was limited.^[Only later I
+realized that technical arguments are mostly irrelevant in the context of
+library systems because of an ill-fated relationship between libraries and
+library IT vendors.] 
+
+Two exceptions are worth to mention: Ross Singer provided an experimental
+implementation for the *OpenBiblio* library system as part of his Jangle
+framework [@Singer2008]. Another independent came in 2010 from Markus Fischer
+from the libraries of Swiss Solothurn hospitals AG: he implemented a DAIA
+service for *[Doctor Doc](http://www.doctor-doc.com)*, a link resolver and
+management tool for interlibrary loan. The implementation does not strictly
+follow the specification as it uses OpenURL fields (`issn`, `volume`,
+`date`...) instead of unique request identifiers to easier meet its use case of
+looking up journal articles. Availability information from Doctor-Doc is
+included in the VuFind-based article reference database
 [bibnet.org](http://bibnet.org) as described by @Fischer2010.
 
-*TODO: 2010-2012: VuFind, BibApp, libsites/LOD ontologies (side-projects)...*
+## Adoption and implementation
 
-Over the years the central DAIA server of VZG was used more and more, but
-signs of code smelll and software rot became undeniable.
+Most libraries in both library networks HeBIS and VZG use the same ILS, [LBS by
+OCLC](http://www.oclc.org/en-europe/lbs.html) (formerly PICA). For this reason
+it was possible to reuse the first DAIA server at HeBIS, primarily created for
+project Beluga, for other libraries as well. Nevertheless I started to
+implement a second server for hosting a central DAIA service at VZG as
+technology demonstration (<http://daia.gbv.de/>).  In the following years
+development at VZG shifted to specification of ontologies for integration of
+DAIA into the Semantic Web so the server was never promoted an official
+service.  Nevertheless the prototype, providing a rudimentary DAIA service for
+all GBV libraries, attracted some use cases and experiments:
 
-- Prolem: code base directly origined from first prototype,
-  implementation and specification being maintained by the same 
-  person (me)
+During the first German VuFind Meeting a DAIA driver was created to integrate
+DAIA services into VuFind Discovery Interface [@Kinstler2009].  One of the
+first applications of this integration was provided by two students in form of
+they Bachelor's thesis: The "Bachelopac" by Jörg Schmitt and Marcel Stehle
+[-@Schmitt2011; -@Schmitt2010] showed the easy of setting up a discovery
+interface for Hamburg University of Applied Sciences (HAW).^[This early history
+of VuFind in Germany must not be told without mentioning the "cat library"
+<http://www.katzenbibliothek.de>, a VuFind-based bibliography of cat novels
+created by  Stephanie Funk as Master's Thesis in 2011.] The DAIA service for
+their ILS was provided by Oliver Goldschmidt [-@Goldschmidt2010] who was
+experimenting with DAIA and VuFind for the
+"[TUBfind](https://katalog.tub.tuhh.de/)" discovery interface of Hamburg
+University of Technology (TUHH) around the same time.^[Looking back it is worth
+to ask ask why three indenpendent DAIA wrappers had been created as wrapper to
+the same type of ILS (LBS). One reason might be the need of local
+configuration.  Anyway this work showed it was easy to hack your own DAIA
+server.]  Motivated by the ease of this implementations more and more German
+libraries and library networks started to use VuFind with DAIA services
+mostly provided by the library networks GBV/VZG, HeBIS, and BSZ. 
 
-- Both server and specification had became too complex to quickly rewrite them
-  from scratch. it was difficult the change the implementation without
-  touching the main implementation and vice versa.
+## Maturity and problems
 
-- Running system: no motivation to revise specification and/or implementation
+Despite the success of DAIA as internal tool for connecting VuFind with ILSes
+the vision of an open API to availability information was not realized.
+Compliance of DAIA services with the specification was difficult to judge and
+new applications were unlikely to emerge as only the central DAIA service of VZG
+was publically available and documented.
 
-- multiple output formats: complex without benefit. 
+The more this service was used, the less it was possible to modify this early
+prototype, so signs of code smell and software rot became undeniable. In
+contrast to other implementations the central server was planned as generic
+service for a large number of library systems so configuration for each new
+library added added more and more complexity. At the same time the service
+served as demo and testbed for the specification, which was always marked as
+working draft. Especially dropping features was difficult in a running system.
+Given that DAIA at VZG was not funded or properly managed, motivation was low
+to fully rewrite both specification and implementation by a single developer.
 
-- retrospectively: DAIA tried to put two much data modeling into the
-  specification (lesson learned: data modeling is important but should be
-  invisible in the final product)
-
-- ...
 
 ## With PAIA to DAIA 1.0
 
-The final motivation to eventually finish DAIA 1.0 specification came with
-implementation of another API for access to patron accounts: the **Patrons
-Account Information API (PAIA)** was specified as complement to DAIA during
+The incentive to eventually finish DAIA 1.0 specification came with
+implementation of another API for access to patron accounts: the *Patrons
+Account Information API (PAIA)* was specified as complement to DAIA during
 development of the mobile library application "BibApp" in 2012.^[See
 <https://www.gbv.de/wikis/cls/BibApp> for a German overview of BibApp. The
 application is available as Open Source at <https://github.com/gbv/bibapp-ios>
@@ -304,18 +343,13 @@ specification.
 
 ## What's new in DAIA 1.0
 
-*...comparision of DAIA 0.5 with DAIA 1.0...*
+The difference between DAIA 0.5 and DAIA 1.0 follows a different pattern than
+second versions of APIs such as OpenURL (from 0.1 to 1.0) and SRU (from 1.2 to
+2.0): instead of adding abstraction and complexity, the revision of DAIA
+already started with an abstract data model. In anticipation of my PhD thesis
+[@Voss2013] DAIA 0.5 was firmly grounded in conceptual modeling with mappings
+to multiple data structuring formats such as XML, JSON, and RDF.
 
-![DAIA 0.5 conceptual data model](daia-conceptual-model.png)
-
-DAIA 0.5 was firmly grounded in conceptual modeling, XML, and RDF etc.
-(an anticipation of my thesis but not practical to communicate the API).
-
-
-- Removal of options that had showed to be unnecessary over the years
-  and addition of missing features.
-
-- Maintaining backwards-compatibility as best as possible.
 
 - Main decicision: get rid of XML and RDF (see what Jonathan Rochkind wrote
   before leaving library IT at
@@ -323,52 +357,98 @@ DAIA 0.5 was firmly grounded in conceptual modeling, XML, and RDF etc.
   The Approach to use RDF as basic data format turned out to be impractical but
   it helped conceptual modeling 
 
-  See also mistakes of OpenURL 1.0 vs 0.1 (new formats, more complexity for
-  no actual more outcome) and SRU 2.0 vs 1.0 (dito).
+- multiple output formats: complex without benefit. 
 
+  cut down less used features, but still influenced by RDF.
+
+- retrospectively: DAIA tried to put two much data modeling into the
+  specification (lesson learned: data modeling is important but should be
+  invisible in the final product)
+
+- Removal of options that had showed to be unnecessary over the years
+  and addition of missing features.
+
+- Maintaining backwards-compatibility as best as possible.
+
+- additional HTTP headers
 
 - recommended encoding of common limitations of interlibrary loan (e.g. no
   loan to foreign countries): Digital Documents and Interloan is difficult
   because libraries often don’t know what they have licensed under what conditions. 
   A working group at GBV (cite) looked at several licenses and found the 
   following common conditions on interlibrary loan of digital publications:
-  
-  ...
+
+- better support of digital documents
 
 - recommended encoding of open access licenses
 
+- added service type `remote`. The existing service type `presentation` and
+  `loan` and should not be used for remotely provided digital publications 
+  anymore
+
+- JSON Schema
+
+- Integrity rules to formalize common sense.
+
 ...
+
+
+---- ----------------------------------------------------
+2007 First ideas
+2008 First specification and implementation of DAIA 0.5
+2009 Formal specification of DAIA 0.5, daia.gbv.de
+2010 bachelopac
+2011 First (FH Hannover) in VZG and HeBIS draft
+2012 DAIA Service of BSZ
+2013 VuFind with DAIA at HeBiS
+2014
+2015
+2016 DAIA 1.0
+---- ----------------------------------------------------
+
+ : DAIA timeline
+
 
 # Applications
 
-*...servers, clients, usage...*
-
 ## DAIA clients
 
-The first use case and application of DAIA was Beluga...
+The major DAIA clients are discovery interfaces based on VuFind. The DAIA
+driver in VuFind has been created and improved collaboratively by several
+VuFind users.^[TODO: Link to DAIA driver in VuFind 1 and VuFind 2.]
 
-Unfortunately Beluga was created when VuFind was not available yet, so
-the project had to support its own code base.
-...
+*TODO*
 
-The DAIA driver in VuFind has been created and improved collaboratively by
-several VuFind users.
+Examples of VuFind instances that internally make use of DAIA:
 
-BibApp...
+* KOBV: <https://portal.kobv.de/> (ALBERT and/or VuFind???)
+* In GBV: ... VuFind instances and new discovery interface "lukida" 
+* In HeBIS: ...
+* in BSZ: ...
+* finc: ...
+
+Within VZG DAIA is further used for interlibrary-loan checking for selected
+libraries (the client is called "MAUS").
+
+BibApp ...
+
+Other mobile applications:
+
+* Mobile.UP 
+^[See <http://www.uni-potsdam.de/mobileup/> for project information 
+  and <https://github.com/University-of-Potsdam-MM/UP.App> for source code.] 
 
 The JavaScript module ng-daia [@ngdaia] for use with the AngularJS framework
-has already been presented in code4lib journal [@AngularJS2014].
+has already been presented in code4lib journal [@AngularJS2014]. It can be used
+to display availability information via DAIA on arbitrary web pages.
 
-Within VZG DAIA is also used for interlibrary-loan checking for selected
-libraries.
-
-KOBV...
-
-...
-
-No public use known so far (e.g. display in learning management systems or
-reference managers) - one reason might be a lacking proactive publication of
-the API by libraries
+Although DAIA has explicitly been designed as open API, little clients are
+known created outside of library applications so far. Promising candidates for
+such DAIA clients include learning management systems and reference managers
+which both may want to display the current availability and location of
+documents.  Maybe more applications will emerge when libraries start to
+document and propagate their DAIA endpoint as public APIs instead of only using
+them to internally connect their own systems.
 
 
 ## DAIA servers
@@ -377,30 +457,48 @@ DAIA services have been implemented for several ILS, mainly used in Germany, so
 far.  All implementations but one have been created by ILS users instead of
 being provided as official APIs by the ISL vendors.
 
-The first DAIA server at VZG, wrapping the **LBS** ILS from OCLC (formerly from
-PICA),^[<http://www.oclc.org/en-europe/lbs.html>] is being replaced by a new
-implementation with direct access to the LBS database.  Parts of the first
-server have been released as Perl modules at CPAN to facilitate the creation of
-DAIA\ 0.5 wrappers [@DAIApm,@PlackDAIA].  DAIA servers for ILS **Bibliotheca**
-(originally from BOND, now also
-OCLC)^[<https://www.oclc.org/de-DE/bibliotheca.html>] and **Libero** from
-LIB-IT^[<http://www.lib-it.de/produkte/libero.html>] have been created
-independently as part of the Saxonian project finc.^[See <https://finc.info>
-for project information, <https://github.com/finc/DaiaTheca> and
-<https://github.com/finc/DaiaLibero> for DAIA servers implemented in Java.] The
-Bibliotheksservice-Zentrum Baden-Württemberg (BSZ) provides DAIA servers for
-their customers with ILS **aDIS/BMS** from a|S|te|c^[<https://www.astec.de/>]
-and for **Koha**.^[See <https://wiki.bsz-bw.de/doku.php?id=l-team:daia:start>]
-Both are implemented as closed wrappers not integrated in the ILS, so neither
-Koha provides a native DAIA service so far.^[The lack of interest within the
-Koha community suprised me, given that the ILS is both Open Source and written
-in Perl just like the public reference implementation of DAIA 0.5.]
-**Doctor-Doc** including its DAIA server is available as open source.^[The Java
-source code is located at <https://sourceforge.net/projects/doctor-doc>.] The
-only implementation coming from an ILS vendor is the DAIA module of
-**BIBDIA** ILS from BibBer GmbH^[<http://www.bibdia.de/bibdia>]. The module was
-created for the City and State Library of Potsdam to be integrated into the
-KOBV portal of libraries in Berlin and Brandenburg.
+The first DAIA server by HeBIS library network has been replaced by a new
+wrapper based on screenscraping to provide available information from *LBS* ILS
+systems in [HeBIS Discovery System](http://www.hebis.de/de/1kataloge/hds.php)
+(HDS). The central DAIA server of VZG also wraps *LBS* but based on the
+internal record format PICA+ and additional config files. This server is being
+replaced by a new implementation with direct access to the LBS loan database.
+Parts of the central server have been released as Perl modules at CPAN to
+facilitate the creation of DAIA\ 0.5 wrappers [@DAIApm; @PlackDAIA].  DAIA
+servers for ILS [*Bibliotheca*](https://www.oclc.org/de-DE/bibliotheca.html)
+(originally from BOND, now also OCLC) and
+[*Libero*](http://www.lib-it.de/produkte/libero.html) from LIB-IT have been
+created independently as part of the Saxonian project finc.^[See
+<https://finc.info> for project information,
+<https://github.com/finc/DaiaTheca> and <https://github.com/finc/DaiaLibero>
+for DAIA servers implemented in Java.] The Bibliotheksservice-Zentrum
+Baden-Württemberg (BSZ) provides DAIA servers for their customers with ILS
+*aDIS/BMS* from [a|S|te|c](https://www.astec.de/) and for *Koha*.^[See
+<https://wiki.bsz-bw.de/doku.php?id=l-team:daia:start>] Both are implemented as
+closed wrappers not integrated in the ILS, so neither Koha provides a native
+DAIA service so far.^[The lack of interest within the Koha community suprised
+me, given that the ILS is both Open Source and written in Perl just like the
+public reference implementation of DAIA 0.5.] *Doctor-Doc* including its DAIA
+server is available as open source.^[The Java source code is located at
+<https://sourceforge.net/projects/doctor-doc>.] The only implementation coming
+from an ILS vendor is the DAIA module of [*BIBDIA* ILS from BibBer
+GmbH](http://www.bibdia.de/bibdia) . The module was created for the City and
+State Library of Potsdam to be integrated into the KOBV portal of libraries in
+Berlin and Brandenburg.
+
+ILS         ILS vendor DAIA implementer DAIA version open source public access
+----------- ---------- ---------------- ------------ ----------- -------------
+LBS         OCLC       HeBIS            0.5?         no          no
+LBS         OCLC       VZG              0.5          yes         yes
+LBS         OCLC       VZG              1.0          no          yes
+Bibliotheca OCLC       finc             0.5?         yes         no?
+Libero      LIB-IT     finc             0.5?         yes         no?
+aDIS/BMS    a|S|te|c   BSZ              0.5          no          no
+Koha        --         BSZ              0.5          no          no
+BIBDIA      BiBer      BiBer            0.5          no          no
+----------- ---------- ---------------- ------------ ----------- -------------
+
+  : DAIA support for ILS
 
 # Summary and outlook
 
@@ -408,17 +506,8 @@ KOBV portal of libraries in Berlin and Brandenburg.
 
 ...what does it means to be available
 
-Existing APIs and standards evaluated during specification of DAIA included:
-
-* *Z39.50 Holdings Attribute Set and Schema* (2002)
-* *Catalog Availability Web Service* of the NCSU Libraries catalog 
-  [@Sierra2007]
-* ... 
-* *...DLF ILS Discovery Interface Task Group’s recommendation, existing APIs such
-as NCIP. See <https://www.gbv.de/wikis/cls/index.php?title=Document_Availability_Information_API_%28DAIA%29&oldid=9091> for more*
-
-
-...
+*Important criteria: OPEN API by design, public access, no IP or contract
+restriction "hackability".*
 
 1. DAIA does not come from vendor or if so (BIBDIA) vendor does not advertise 
    DAIA
@@ -459,5 +548,7 @@ The most important design decision in DAIA: The idea of a "general
 availability" status, as shown in some OPACs, was suggested several times but
 it was rejected. 
 
+
+Bewertung: SOA is still not wanted or understood.
 
 # References
