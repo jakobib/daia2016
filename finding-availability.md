@@ -38,8 +38,9 @@ network. This use case can best be illustrated with an example:
 
 Given the Western Michigan University Libraries had a DAIA service at
 <https://wmich.edu/library/daia>, a request with ISBN-10 via request URL
-<https://wmich.edu/library/daia?id=1490931864> could result in the following
-JSON object:^[Example based on actual library data from their public catalog.]
+<https://wmich.edu/library/daia?id=1490931864&format=json> could result in the
+following JSON object:^[Example based on actual library data from their public
+catalog.]
 
 ~~~json
 {
@@ -348,66 +349,83 @@ second versions of APIs such as OpenURL (from 0.1 to 1.0) and SRU (from 1.2 to
 2.0): instead of adding abstraction and complexity, the revision of DAIA
 already started with an abstract data model. In anticipation of my PhD thesis
 [@Voss2013] DAIA 0.5 was firmly grounded in conceptual modeling with mappings
-to multiple data structuring formats such as XML, JSON, and RDF.
+to multiple data structuring formats such as XML, JSON, and RDF. The support of
+these multiple output formats turned out to be complex without real benefit so
+XML and RDF were dropped in favour of JSON.  The query parameter `format=json`
+keeps backwards compatibility with DAIA 0.5. Explicit mapping of DAIA format to
+RDF was also removed but it is still possible and helped to maintain a clear
+data model. The lesson learned is data modeling is important to get a data
+format but it should not be made explicit in the final product.  The remaining
+changes keep backwards-compatibility so a DAIA client expecting DAIA 0.5 JSON
+format will still make sense of a DAIA 1.0 service.  The revision of DAIA adds
+examples and notes and it clarifies some poorly definied cases such as the
+exact meaning of service fields `expected` and `href`. Most additional features
+are optional or optional features of DAIA 0.5 made mandatory in DAIA 1.0. The
+most important practical addition is the introduction of service type "remote"
+and recommendations of limitation types to better cover digital documents and
+restriction in interlibrary loan. The following lists summarize all removed and
+added features.
 
-
-- Main decicision: get rid of XML and RDF (see what Jonathan Rochkind wrote
-  before leaving library IT at
-  <https://bibwild.wordpress.com/2015/11/23/linked-data-caution/>)
-  The Approach to use RDF as basic data format turned out to be impractical but
-  it helped conceptual modeling 
-
-- multiple output formats: complex without benefit. 
-
-  cut down less used features, but still influenced by RDF.
-
-- retrospectively: DAIA tried to put two much data modeling into the
-  specification (lesson learned: data modeling is important but should be
-  invisible in the final product)
-
-- Removal of options that had showed to be unnecessary over the years
-  and addition of missing features.
-
-- Maintaining backwards-compatibility as best as possible.
-
-- additional HTTP headers
-
+<!--
 - recommended encoding of common limitations of interlibrary loan (e.g. no
   loan to foreign countries): Digital Documents and Interloan is difficult
   because libraries often don’t know what they have licensed under what conditions. 
   A working group at GBV (cite) looked at several licenses and found the 
   following common conditions on interlibrary loan of digital publications:
+--->
 
-- better support of digital documents
+### Removed features {.unnumbered}
 
-- recommended encoding of open access licenses
+* Response formats XML and RDF in favour of JSON
 
-- added service type `remote`. The existing service type `presentation` and
-  `loan` and should not be used for remotely provided digital publications 
-  anymore
+* Data fields `version`, `schema`, and `message`.
+  The latter was intended for error messages but misused
+  to sneak through unspecified free-text information
 
-- JSON Schema
+* Useless edge cases such as services without service type
+  and empty entities
 
-- Integrity rules to formalize common sense.
+### Mandatory new features {.unnumbered}
 
-...
+* Query parameter `format` must be set to `json`.
 
+* More specific processing of query parameter `id` with support
+  of multiple request identifiers (separated by `|`) and mapping
+  to response identifiers (document field `requested`).
 
----- ----------------------------------------------------
-2007 First ideas
-2008 First specification and implementation of DAIA 0.5
-2009 Formal specification of DAIA 0.5, daia.gbv.de
-2010 bachelopac
-2011 First (FH Hannover) in VZG and HeBIS draft
-2012 DAIA Service of BSZ
-2013 VuFind with DAIA at HeBiS
-2014
-2015
-2016 DAIA 1.0
----- ----------------------------------------------------
+* HTTP response headers (`Content-Type`, `X-DAIA-Version`, `Link`)
 
- : DAIA timeline
+* Basic integrity rules formalizing common sense
 
+### Recommended new features
+
+* New service type `remote` for remote access. The existing service type
+  `presentation` and `loan` were changed to not cover this use case anymore.
+
+* Introduction of limitation types to cover most use-cases in interlibrary loan
+  and licenses in open access
+
+* Language of textual data fields should be indicated by HTTP response
+  header `Content-Language`.
+
+* Support of HTTP request methods HEAD and OPTIONS
+
+* Support of Cross-Origin Resource Sharing (CORS)
+
+* Support of HTTP request headers `Accept` and `Accept-Language`
+
+* All strings should be normalized to Unicode Normalization Form C (NFC).
+
+### Optional or non-normative new features {.unnumbered}
+
+* Authentification and patron-specific availability
+
+* Field `about` with human-readable description of documents and items
+
+* JSON Schema to validate DAIA response format
+
+* Reference to DAIA Simple format
+ 
 
 # Applications
 
