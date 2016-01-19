@@ -324,12 +324,10 @@ to fully rewrite both specification and implementation by a single developer.
 The incentive to eventually finish DAIA 1.0 specification came with
 implementation of another API for access to patron accounts: the *Patrons
 Account Information API (PAIA)* was specified as complement to DAIA during
-development of the mobile library application "BibApp" in 2012.^[See
-<https://www.gbv.de/wikis/cls/BibApp> for a German overview of BibApp. The
-application is available as Open Source at <https://github.com/gbv/bibapp-ios>
-and <https://github.com/gbv/bibapp-android>.] Although PAIA is more complex
-than DAIA, as it also includes authentification and write access, the
-specification turned out to be but easier and cleaner than DAIA 0.5. 
+development of the mobile library application "BibApp" in 2012. Although PAIA
+is more complex than DAIA, as it also includes authentification and write
+access, the specification turned out to be but easier and cleaner than DAIA
+0.5. 
 
 Based on the specification of PAIA [@PAIA], a first PAIA server was
 implemented by a contractor^[Creation and maintanance of BibApp is done by the
@@ -433,28 +431,44 @@ added features.
 
 The major DAIA clients are discovery interfaces based on VuFind. The DAIA
 driver in VuFind has been created and improved collaboratively by several
-VuFind users.^[TODO: Link to DAIA driver in VuFind 1 and VuFind 2.]
+VuFind users. The driver is part of VuFind since version ?? and better support
+of DAIA 1.0 features is being implemented in VuFind 2.  VuFind instances that
+internally make use of DAIA are mainly provided by the German library
+consortiums for academic libraries:
 
-*TODO*
+* Nine Hessian libraries use HeBIS Discovery System (HDS)
+  ^[<http://www.hebis.de/de/1kataloge/hds.php>]
 
-Examples of VuFind instances that internally make use of DAIA:
+* The Discovery System BOSS by BSZ covers 31 libraries
+  ^[<https://wiki.bsz-bw.de/doku.php?id=projekte:boss:start>]
 
-* KOBV: <https://portal.kobv.de/> (ALBERT and/or VuFind???)
-* In GBV: ... VuFind instances and new discovery interface "lukida" 
-* In HeBIS: ...
-* in BSZ: ...
-* finc: ...
+* Thirteen libraries in Saxonia based consortium finc 
+  ^[<https://finc.info/de/nutzergemeinschaft>]
+  (TODO: was ist der Stand? was macht der Rest des SWB?)
+
+* Within GBV library network (TODO)? libraries use VuFind with DAIA.
+  The VZG is also developing an alternative discovery interface
+  called "Lukida" based on the same APIs.
+
+* TODO: KOBV: <https://portal.kobv.de/> (ALBERT and/or VuFind???)
+  = union catalog?
+
+* TODO: BVB??
+
+* TODO: hbz??
+
+A differnt kind of DAIA client is the mobile library application BibApp ^[See
+<https://www.gbv.de/wikis/cls/BibApp> for a German overview of BibApp],
+currently used by eleven libraries. The app is Open Source and available for
+Android and iOS.^[See <https://github.com/gbv/bibapp-ios> and
+<https://github.com/gbv/bibapp-android>.] Another mobile application is the
+"Mobile.UP" by Postdam University.  It covers basic library search and
+availability via DAIA, among other features.^[See
+<http://www.uni-potsdam.de/mobileup/> for project information and
+<https://github.com/University-of-Potsdam-MM/UP.App> for source code.] 
 
 Within VZG DAIA is further used for interlibrary-loan checking for selected
-libraries (the client is called "MAUS").
-
-BibApp ...
-
-Other mobile applications:
-
-* Mobile.UP 
-^[See <http://www.uni-potsdam.de/mobileup/> for project information 
-  and <https://github.com/University-of-Potsdam-MM/UP.App> for source code.] 
+libraries. The internal client module is called "MAUS".
 
 The JavaScript module ng-daia [@ngdaia] for use with the AngularJS framework
 has already been presented in code4lib journal [@AngularJS2014]. It can be used
@@ -465,9 +479,20 @@ known created outside of library applications so far. Promising candidates for
 such DAIA clients include learning management systems and reference managers
 which both may want to display the current availability and location of
 documents.  Maybe more applications will emerge when libraries start to
-document and propagate their DAIA endpoint as public APIs instead of only using
+document and propagate their DAIA services as public APIs instead of only using
 them to internally connect their own systems.
 
+Software   Open source
+---------- --------------------------
+VuFind     yes (PHP)
+Lukida     yes (PHP)
+BibApp     yes (Java and Objective-C)
+Mobile.UP  yes (JavaScript)
+ng-daia    yes (JavaScript)
+MAUS       no (TODO?)
+---------- --------------------------
+
+  : DAIA client software
 
 ## DAIA servers
 
@@ -507,10 +532,10 @@ Berlin and Brandenburg.
 ILS         ILS vendor DAIA implementer DAIA version open source public access
 ----------- ---------- ---------------- ------------ ----------- -------------
 LBS         OCLC       HeBIS            0.5?         no          no
-LBS         OCLC       VZG              0.5          yes         yes
+LBS         OCLC       VZG              0.5          yes (Perl)  yes
 LBS         OCLC       VZG              1.0          no          yes
-Bibliotheca OCLC       finc             0.5?         yes         no?
-Libero      LIB-IT     finc             0.5?         yes         no?
+Bibliotheca OCLC       finc             0.5?         yes (Java)  no? (TODO)
+Libero      LIB-IT     finc             0.5?         yes (Java)  no? (TODO)
 aDIS/BMS    a|S|te|c   BSZ              0.5          no          no
 Koha        --         BSZ              0.5          no          no
 BIBDIA      BiBer      BiBer            0.5          no          no
