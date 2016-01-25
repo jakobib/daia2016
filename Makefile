@@ -14,6 +14,7 @@ $(NAME).html: $(ABOUT) $(NAME).md $(REFERENCES)
 	   --bibliography $(REFERENCES) \
 	   --csl council-of-science-editors-author-date.csl \
 	   --css code4lib.css \
+	   --toc --toc-depth 2\
 	   | sed 's/^<hr \/>/<h1>Endnotes<\/h1>/' > $@
 
 normalize: $(REFERENCES)

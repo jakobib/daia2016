@@ -1,6 +1,6 @@
 # Introduction
 
-When I started to work at the *Verbundzentrale des GBV* (VZG), just having
+When I started to work at the Verbundzentrale des GBV (VZG), just having
 finished my degree in library science and computer science, I was frankly
 surprised by the state of programming interfaces to library systems in general
 and web services in particular. The best one could find was SRU
@@ -11,24 +11,22 @@ specifications for some services, independently from their actual
 (non)implementation in library systems at that time: OAI-PMH, RSS, and AtomPub
 for syndication; SRU Update for update/edit, OpenID, and Shibboleth for
 Authentification; unAPI, COInS, and Microformats to provide data for copy and
-paste.]
-Still I was motivated to replace the inaccessible library IT with a service
-oriented architecture (SOA).^[See [@Voss2008] for another API developed by this
-motivation at that time.] One part of this strategy was the creation of a
-dedicated API to query real-time availability of documents, which is the topic
-of this article.^[By the way Wikidata contains an authority file record for
-DAIA: <http://www.wikidata.org/entity/Q17122861>.] The resulting *Document
-Availability Information API (DAIA)* is being used successfully within the
-*Common Library Network (GBV)* since 2009.
-This article first introduces its current specification 
-as recently revised to become DAIA 1.0 [@DAIA_1.0].
-Background of the development is then covered with the history of DAIA until now.
-The final sections summarize existing applications and implementations and 
-conclude with a biased summary.
+paste.] Still I was motivated to replace the inaccessible library IT with a
+service oriented architecture (SOA).^[See [@Voss2008] for another API developed
+by this motivation at that time.] One part of this strategy was the creation of
+a dedicated API to query real-time availability of documents, which is the
+topic of this article.^[The authority file record URI for DAIA is
+<http://www.wikidata.org/entity/Q17122861>.] The resulting Document
+Availability Information API (DAIA) is being used successfully within the
+Common Library Network (GBV) and other German library networks since 2009.
+This article first introduces the current specification of DAIA as recently
+revised to become version 1.0.0 [@DAIA_1.0].  Background of the development is
+then covered with the history of DAIA until now.  The final sections summarize
+existing applications and implementations and conclude with a biased summary.
 
 # DAIA in a nutshell
 
-In a nutshell the Document Availability Information API (DAIA) defines a method
+In a nutshell the Document Availability Information API defines a method
 to query the current availability of documents via HTTP. A **document** must be
 identified by an URI but DAIA services may map other forms of request
 identifiers to normalized URIs. A DAIA response contains information about
@@ -39,8 +37,8 @@ network. This use case can best be illustrated with an example:
 Given the Western Michigan University Libraries had a DAIA service at
 <https://wmich.edu/library/daia>, a request with ISBN-10 via request URL
 <https://wmich.edu/library/daia?id=1490931864&format=json> could result in the
-following JSON object:^[Example based on actual library data from their public
-catalog.]
+following JSON object (example based on actual library data from their public
+catalog):
 
 ~~~json
 {
@@ -67,26 +65,27 @@ catalog.]
 }
 ~~~
 
-The request identifier `1490931864` (field `requested`) is mapped to the URI
-`urn:isbn:9781490931869` and found with one item (array `item`). The item is
-returned with its shelf mark (field `label`).  As included in this example, a
-DAIA response can also contain information about the holding library
-(`institution`) and a particular branch (`department`) which an item is located
-at.  Use of URIs to identify entities (field `id`) is encouraged instead of
-additional fields. For instance [`http://id.loc.gov/vocabulary/organizations/mikw`](http://id.loc.gov/vocabulary/organizations/mikw) can be used to retrieve more
-information about the library such as its address.
+The *request identifier* `1490931864` (`requested`) is mapped to the document
+URI `urn:isbn:9781490931869` and found with one item (`item`). The item is
+returned with its shelf mark (`label`).  As included in this example, a DAIA
+response can also contain information about the holding library (`institution`)
+and a particular branch (`department`) which an item is located at.  Use of
+URIs to identify entities (`id`) is encouraged, so additional information can
+be retrieved as Linked Open Data or via other APIs (for instance
+[`http://id.loc.gov/vocabulary/organizations/mikw`](http://id.loc.gov/vocabulary/organizations/mikw)
+returns the address of the library).
 
-To ensure automatic processing of DAIA responses, the DAIA specification
-[@DAIA_1.0] prevents free-text fields other than literal names and labels.
-This also applies to the encoding of actual availability, which is not
-expressed by textual descriptions such as "currently available" or "on hold".
-Availability instead is based on **services**, being the third important
-concept next to documents and items.  Following the DAIA data model an item is
-never available or unavailable by itself but only for a specific service
-provided by a specific organization.  It is crucial to note that an item can be
-available for mutliple services under multiple conditions. The same item can
-also be available for one service and unavailable for another service.  DAIA
-specification defines five service types:
+To ensure automatic processing of DAIA responses, the DAIA specification avoids
+free-text fields other than literal names and labels.  This also applies to the
+encoding of actual availability, which is not expressed by textual descriptions
+such as "currently available" or "on hold".  Availability instead is based on
+**services**, being the third important concept next to documents and items.
+An item in the DAIA data model is never available or unavailable by itself but
+only for a specific service provided by a specific organization.  It is crucial
+to note that an item can be available for mutliple services under multiple
+conditions. The same item can also be available for one service and unavailable
+for another service at the same time.  DAIA specification defines five service
+types:
 
 +------------------+-----------------------------------------------------------+
 | **presentation** | making an item accessible within the helding organization |
@@ -98,9 +97,9 @@ specification defines five service types:
 | **remote**       | delivery of an item to the patron (e.g. remote access     |
 |                  | of digital documents or home delivery of books)           |
 +------------------+-----------------------------------------------------------+
-| **openaccess**   | providing an URL for unlimited online access              |
-+------------------+-----------------------------------------------------------+
 | **interloan**    | giving an item to interlibrary loan                       |
++------------------+-----------------------------------------------------------+
+| **openaccess**   | providing an URL for unlimited online access              |
 +------------------+-----------------------------------------------------------+
 
   : DAIA service types
@@ -111,7 +110,7 @@ does not distinguish document types or similar properties of library holdings
 that only affect document usage indirectly. A DAIA response rather lists which
 types of usages can currently be provided (available) or not provided
 (unavailable) with a document instance. The information is encoded in JSON
-fields `available` and `unavaibale` of an `item` as following:
+fields `available` and `unavaibale` of an `item` like this:
 
 ~~~json
 {
@@ -131,19 +130,18 @@ library via interlibrary loan but it is not lend or remotely given to the
 patron. Each service can further be specified with additional fields, covering
 virtually all use cases we could find:
 
-* A service can require some action to be performed, registered, or reserverd 
-  (field `href`). Examples include ordering a book from the stacks or reserving
-  a book which is currently not available.
-  reserving a book.
+* A service can **require some action** to be performed, registered, or
+  reserverd (`href`). Examples include ordering a book from the stacks or
+  reserving a book which is currently not available.  reserving a book.
 
-* An available service can come with some delay (field `delay`), for
+* An available service can **come with some delay** (`delay`), for
   instance if a book must be delivered to the reading room.
 
-* An unavailable service can expected to be available after
+* An unavailable service can **expected to become available** after
   some estimated time  (field `expected`) and/or after a number of
   reservations (field `queue`).
 
-* A service can be subject to additional limitations (field `limitation`). The
+* A service can be subject to additional **limitations** (`limitation`). The
   DAIA specification contains recommendations of common limitation types such
   as required approval or no interlibrary loan to foreign contries.
 
@@ -155,14 +153,14 @@ reduced, flat format named "DAIA Simple" for simple use cases when there is a
 preferrence of service types (e.g. openaccess is always better than remote
 which is always better than loan which is always better than presentation).
 Some applications might further reduce the availability to simple boolean
-value. Then ng-daia client [@ngdaia, @AngularJS2014] contains some templates
+value. The ng-daia client [@ngdaia, @AngularJS2014] contains some templates
 for display of availability information. Nevertheless any decision how to
 present availability information for best user experience requires
 understanding of both use cases and the DAIA data model.
 
 A full example of a DAIA response covering the information displayed in an
 actual discovery interface (Figure 1) is given below. The response contains a
-document with two items at the Hamburg State and University Library, one of
+document with two items at the Hamburg State and University Library, one
 available at the department of computer scienc and the other being on loan.
 
 ~~~json
@@ -319,9 +317,9 @@ Given that DAIA at VZG was not funded or properly managed, motivation was low
 to fully rewrite both specification and implementation by a single developer.
 
 
-## With PAIA to DAIA 1.0
+## With PAIA to DAIA 1.0.0
 
-The incentive to eventually finish DAIA 1.0 specification came with
+The incentive to eventually finish DAIA 1.0.0 specification came with
 implementation of another API for access to patron accounts: the *Patrons
 Account Information API (PAIA)* was specified as complement to DAIA during
 development of the mobile library application "BibApp" in 2012. Although PAIA
@@ -340,9 +338,9 @@ replacing the old DAIA server with a more robust implementation. This new
 implementation of a DAIA server motivated a major revision of DAIA
 specification.
 
-## What's new in DAIA 1.0
+## What's new in DAIA 1.0.0
 
-The difference between DAIA 0.5 and DAIA 1.0 follows a different pattern than
+The difference between DAIA 0.5 and DAIA 1.0.0 follows a different pattern than
 second versions of APIs such as OpenURL (from 0.1 to 1.0) and SRU (from 1.2 to
 2.0): instead of adding abstraction and complexity, the revision of DAIA
 already started with an abstract data model. In anticipation of my PhD thesis
@@ -355,8 +353,8 @@ RDF was also removed but it is still possible and helped to maintain a clear
 data model. The lesson learned is data modeling is important to get a data
 format but it should not be made explicit in the final product.  The remaining
 changes keep backwards-compatibility so a DAIA client expecting DAIA 0.5 JSON
-format will still make sense of a DAIA 1.0 service.  The revision of DAIA adds
-examples and notes and it clarifies some poorly definied cases such as the
+format will still make sense of a DAIA 1.0.0 service.  The revision of DAIA
+adds examples and notes and it clarifies some poorly definied cases such as the
 exact meaning of service fields `expected` and `href`. Most additional features
 are optional or optional features of DAIA 0.5 made mandatory in DAIA 1.0. The
 most important practical addition is the introduction of service type "remote"
@@ -432,9 +430,12 @@ added features.
 The major DAIA clients are discovery interfaces based on VuFind. The DAIA
 driver in VuFind has been created and improved collaboratively by several
 VuFind users. The driver is part of VuFind since version ?? and better support
-of DAIA 1.0 features is being implemented in VuFind 2.  VuFind instances that
+of DAIA 1.0.0 features is being implemented in VuFind 2.  VuFind instances that
 internally make use of DAIA are mainly provided by the German library
-consortiums for academic libraries:
+consortiums or hosted by for academic libraries:
+
+* Within GBV library network at twelve libraries use VuFind with DAIA.
+  ^[<https://www.gbv.de/wikis/cls/VuFind>]
 
 * Nine Hessian libraries use HeBIS Discovery System (HDS)
   ^[<http://www.hebis.de/de/1kataloge/hds.php>]
@@ -443,32 +444,28 @@ consortiums for academic libraries:
   ^[<https://wiki.bsz-bw.de/doku.php?id=projekte:boss:start>]
 
 * Thirteen libraries in Saxonia based consortium finc 
-  ^[<https://finc.info/de/nutzergemeinschaft>]
-  (TODO: was ist der Stand? was macht der Rest des SWB?)
+  ^[<https://finc.info/de/nutzergemeinschaft>]\
+  **(TODO: was ist der Stand? was macht der Rest des SWB?)**
 
-* Within GBV library network (TODO)? libraries use VuFind with DAIA.
-  The VZG is also developing an alternative discovery interface
-  called "Lukida" based on the same APIs.
+Other discovery interfaces that make use of DAIA include
+["ALBERT"](https://www.kobv.de/services/hosting/albert/) by KOBV and "Lukida"
+ba VZG. The KOBV library network uses ALBERT for the [regional library portal
+for Berlin and Brandenburg](http://portal.gbv.de/) where availability of six
+libraries is integrated via DAIA. Another instance of ALBERT for the Leibniz
+Institute for Science and Mathematics Education, Kiel uses DAIA as well. Lukida
+is an alternative to VuFind being developed by VZG. Within VZG DAIA is further
+used for interlibrary-loan checking for selected libraries. The internal module
+is called "MAUS".
 
-* TODO: KOBV: <https://portal.kobv.de/> (ALBERT and/or VuFind???)
-  = union catalog?
-
-* TODO: BVB??
-
-* TODO: hbz??
-
-A differnt kind of DAIA client is the mobile library application BibApp ^[See
-<https://www.gbv.de/wikis/cls/BibApp> for a German overview of BibApp],
+A differnt kind of DAIA client is the mobile library application BibApp,
 currently used by eleven libraries. The app is Open Source and available for
-Android and iOS.^[See <https://github.com/gbv/bibapp-ios> and
-<https://github.com/gbv/bibapp-android>.] Another mobile application is the
-"Mobile.UP" by Postdam University.  It covers basic library search and
-availability via DAIA, among other features.^[See
+Android and iOS.^[See <https://www.gbv.de/wikis/cls/BibApp> for a German
+overview of BibApp. See <https://github.com/gbv/bibapp-ios> and
+<https://github.com/gbv/bibapp-android> for the source code.] Another mobile
+application is the "Mobile.UP" by Postdam University.  It covers basic library
+search and availability via DAIA, among other features.^[See
 <http://www.uni-potsdam.de/mobileup/> for project information and
 <https://github.com/University-of-Potsdam-MM/UP.App> for source code.] 
-
-Within VZG DAIA is further used for interlibrary-loan checking for selected
-libraries. The internal client module is called "MAUS".
 
 The JavaScript module ng-daia [@ngdaia] for use with the AngularJS framework
 has already been presented in code4lib journal [@AngularJS2014]. It can be used
@@ -482,15 +479,15 @@ documents.  Maybe more applications will emerge when libraries start to
 document and propagate their DAIA services as public APIs instead of only using
 them to internally connect their own systems.
 
-Software   Open source
----------- --------------------------
-VuFind     yes (PHP)
-Lukida     yes (PHP)
-BibApp     yes (Java and Objective-C)
-Mobile.UP  yes (JavaScript)
-ng-daia    yes (JavaScript)
-MAUS       no (TODO?)
----------- --------------------------
+software   created by           open source
+---------- -------------------- --------------------------
+VuFind     community            yes (PHP)
+BibApp     effective WEBWORK    yes (Java and Objective-C)
+Mobile.UP  University Potsdam   yes (JavaScript)
+Lukida     VZG                  yes (PHP)
+ng-daia    VZG                  yes (JavaScript)
+MAUS       VZG                  no (Java)
+---------- -------------------- --------------------------
 
   : DAIA client software
 
@@ -533,7 +530,7 @@ ILS         ILS vendor DAIA implementer DAIA version open source public access
 ----------- ---------- ---------------- ------------ ----------- -------------
 LBS         OCLC       HeBIS            0.5?         no          no
 LBS         OCLC       VZG              0.5          yes (Perl)  yes
-LBS         OCLC       VZG              1.0          no          yes
+LBS         OCLC       VZG              1.0.0        no          yes
 Bibliotheca OCLC       finc             0.5?         yes (Java)  no? (TODO)
 Libero      LIB-IT     finc             0.5?         yes (Java)  no? (TODO)
 aDIS/BMS    a|S|te|c   BSZ              0.5          no          no
@@ -545,25 +542,35 @@ BIBDIA      BiBer      BiBer            0.5          no          no
 
 # Summary and outlook
 
-*TODO: notes to text*
+The Document Availability Information API provides a defined method to query
+the current availability of documents via HTTP.  Based on a conceptual model of
+documents, items, services, and limitations the API helped to define
+availability independent from fuzzy ideas of a "general availability",
+free-text fields, and other ILS oddities.  By now there are DAIA services for
+six different ILS and more than 60 libraries use the API productively.
 
-...what does it means to be available
+Despite this success, the original vision of DAIA is far from fulfilled.
 
-*Important criteria: OPEN API by design, public access, no IP or contract
-restriction "hackability".*
+
+* On a closer look, however, this success is limited and far from the origina
+  vision: Most DAIA servers are hidden and none are advertised as public
+  service. 
 
 1. DAIA does not come from vendor or if so (BIBDIA) vendor does not advertise 
    DAIA
 
 2. Libraries do not advertise DAIA as public service but only use it internally
 
+*Important criteria: OPEN API by design, public access, no IP or contract
+restriction "hackability".*
+
+3. Exising services in production are limited to DAIA 0.5
+
 - International adoption and independent implementations in other
   ILS? (VZG will probably implement DAIA at Kuali OLE but what about
   other sofware). More clients? 
 
 - Make DAIA endpoints more popular also to third parties
-
-- service levels to better descripe properties of a DAIA server (or just 1.0)?
 
 - Rule learned: no API implementation without specification, no specification
   without implementation (at least of a client). Sure throw-away prototypes
@@ -582,15 +589,7 @@ digital or physical material.
 
 *what: real-time availability information*
 
-- based on a conceptual data model:
-- does avoid the bad habit to put semantics into free-text fields
-
-Main DAIA concepts: documents, items and services
-
-The most important design decision in DAIA: The idea of a "general
-availability" status, as shown in some OPACs, was suggested several times but
-it was rejected. 
-
+- service levels to better descripe properties of a DAIA server (or just 1.0.0)?
 
 Bewertung: SOA is still not wanted or understood.
 
